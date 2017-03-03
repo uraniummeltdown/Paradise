@@ -347,15 +347,32 @@
 
 //Door
 /obj/machinery/door/airlock/survival_pod
-	name = "Airlock"
-	icon = 'icons/obj/doors/survival.dmi'
-	assembly_type = /obj/structure/door_assembly/door_assembly_pod
+	name = "airlock"
+	icon = 'icons/obj/doors/airlocks/survival/horizontal/survival.dmi'
+	overlays_file = 'icons/obj/doors/airlocks/survival/horizontal/survival_overlays.dmi'
+	assemblytype = /obj/structure/door_assembly/door_assembly_pod
 	opacity = 0
 	glass = 1
 
+/obj/machinery/door/airlock/survival_pod/vertical
+	icon = 'icons/obj/doors/airlocks/survival/vertical/survival.dmi'
+	overlays_file = 'icons/obj/doors/airlocks/survival/vertical/survival_overlays.dmi'
+	assemblytype = /obj/structure/door_assembly/door_assembly_pod/vertical
+
 /obj/structure/door_assembly/door_assembly_pod
-	base_icon_state = "survival_pod"
-	glass_type = "/survival_pod"
+	name = "pod airlock assembly"
+	icon = 'icons/obj/doors/airlocks/survival/horizontal/survival.dmi'
+	overlays_file = 'icons/obj/doors/airlocks/survival/horizontal/survival_overlays.dmi'
+	airlock_type = /obj/machinery/door/airlock/survival_pod
+	anchored = 1
+	state = 1
+	mineral = "glass"
+	material = "glass"
+
+/obj/structure/door_assembly/door_assembly_pod/vertical
+	icon = 'icons/obj/doors/airlocks/survival/vertical/survival.dmi'
+	overlays_file = 'icons/obj/doors/airlocks/survival/vertical/survival_overlays.dmi'
+	airlock_type = /obj/machinery/door/airlock/survival_pod/vertical
 
 //Table
 /obj/structure/table/survival_pod

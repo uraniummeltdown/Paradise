@@ -208,20 +208,30 @@ RCD
 		if(2)
 			if(istype(A, /turf/simulated/floor))
 				if(checkResource(10, user))
-					to_chat(user, "Building Airlock...")
-					playsound(loc, 'sound/machines/click.ogg', 50, 1)
-					if(do_after(user, 50, target = A))
-						if(!useResource(10, user)) return 0
-						activate()
-						var/obj/machinery/door/airlock/T = new door_type(A)
-						T.name = door_name
-						T.autoclose = 1
-						if(one_access)
-							T.req_one_access = door_accesses.Copy()
-						else
-							T.req_access = door_accesses.Copy()
-						return 1
-					return 0
+					var/door_check = 1
+					for(var/obj/machinery/door/D in A)
+						if(!D.sub_door)
+							door_check = 0
+							break
+					if(door_check)
+						to_chat(user, "Building Airlock...")
+						playsound(loc, 'sound/machines/click.ogg', 50, 1)
+						if(do_after(user, 50, target = A))
+							if(!useResource(10, user))
+								return 0
+							activate()
+							var/obj/machinery/door/airlock/T = new door_type(A)
+							T.name = door_name
+							T.autoclose = 1
+							if(one_access)
+								T.req_one_access = door_accesses.Copy()
+							else
+								T.req_access = door_accesses.Copy()
+							return 1
+						return 0
+					else
+						to_chat(user, "There is another door here!")
+						return 0
 				return 0
 
 		if(3)

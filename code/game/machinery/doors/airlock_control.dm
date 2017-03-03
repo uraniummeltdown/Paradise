@@ -4,18 +4,17 @@
 obj/machinery/door/airlock
 	var/id_tag
 	var/frequency
-	var/shockedby = list()
 	var/datum/radio_frequency/radio_connection
 	var/cur_command = null	//the command the door is currently attempting to complete
 
 obj/machinery/door/airlock/process()
-	if(arePowerSystemsOn() && cur_command)
+	if(hasPower() && cur_command)
 		execute_current_command()
 	else
 		return PROCESS_KILL
 
 obj/machinery/door/airlock/receive_signal(datum/signal/signal)
-	if(!arePowerSystemsOn()) return //no power
+	if(!hasPower()) return //no power
 
 	if(!signal || signal.encryption) return
 

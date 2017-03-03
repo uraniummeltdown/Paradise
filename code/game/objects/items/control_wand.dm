@@ -40,7 +40,7 @@
 	if(D.is_special)
 		to_chat(user, "<span class='danger'>[src] cannot access this kind of door!</span>")
 		return
-	if(!(D.arePowerSystemsOn()))
+	if(!(D.hasPower()))
 		to_chat(user, "<span class='danger'>[D] has no power!</span>")
 		return
 	if(!D.requiresID())

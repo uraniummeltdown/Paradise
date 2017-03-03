@@ -16,22 +16,20 @@
 	density = FALSE
 	heat_proof = TRUE
 	glass = TRUE
-	power_channel = ENVIRON
+	sub_door = 1
+	explosion_block = 1
 	closed_layer = 3.11
-	auto_close_time = 50
-
+	assemblytype = /obj/structure/firelock_frame
 	var/can_force = TRUE
 	var/force_open_time = 300
 	var/can_crush = TRUE
-	var/assembly_type = /obj/structure/firelock_frame
 	var/nextstate = null
-	var/welded = FALSE
 	var/boltslocked = TRUE
 	var/can_deconstruct = TRUE
 	var/active_alarm = FALSE
 
 /obj/machinery/door/firedoor/Bumped(atom/AM)
-	if(p_open || operating)
+	if(panel_open || operating)
 		return
 	if(!density)
 		return ..()
@@ -45,64 +43,9 @@
 		stat |= NOPOWER
 	update_icon()
 
-/obj/machinery/door/firedoor/attackby(obj/item/weapon/C as obj, mob/user as mob, params)
-	add_fingerprint(user)
-
-	if(operating)
-		return
-
-	if(istype(C, /obj/item/weapon/weldingtool))
-		var/obj/item/weapon/weldingtool/W = C
-		if(W.remove_fuel(0, user))
-			welded = !welded
-			to_chat(user, "<span class='danger'>You [welded ? "welded" : "unwelded"] \the [src]</span>")
-			update_icon()
-			return
-
-	if(welded)
-		if(istype(C, /obj/item/weapon/wrench))
-			if(boltslocked)
-				to_chat(user, "<span class='notice'>There are screws locking the bolts in place!</span>")
-				return
-			playsound(get_turf(src), 'sound/items/Ratchet.ogg', 50, 1)
-			user.visible_message("<span class='notice'>[user] starts undoing [src]'s bolts...</span>", \
-								 "<span class='notice'>You start unfastening [src]'s floor bolts...</span>")
-			if(!do_after(user, 50, target = src))
-				return
-			playsound(get_turf(src), 'sound/items/Deconstruct.ogg', 50, 1)
-			user.visible_message("<span class='notice'>[user] unfastens [src]'s bolts.</span>", \
-								 "<span class='notice'>You undo [src]'s floor bolts.</span>")
-			deconstruct(TRUE)
-			return
-		else if(istype(C, /obj/item/weapon/screwdriver))
-			user.visible_message("<span class='notice'>[user] [boltslocked ? "unlocks" : "locks"] [src]'s bolts...</span>", \
-								 "<span class='notice'>You [boltslocked ? "unlock" : "lock"] [src]'s floor bolts...</span>")
-			playsound(get_turf(src), 'sound/items/Screwdriver.ogg', 50, 1)
-			boltslocked = !boltslocked
-			return
-		else
-			to_chat(user, "<span class='warning'>\The [src] is welded solid!</span>")
-			return
-
-	if(istype(C, /obj/item/weapon/crowbar) || istype(C, /obj/item/weapon/twohanded/fireaxe))
-		if(istype(C, /obj/item/weapon/twohanded/fireaxe))
-			var/obj/item/weapon/twohanded/fireaxe/F = C
-			if(!F.wielded)
-				return
-
-		user.visible_message("[user] forces \the [src] with [C].",
-		"You force \the [src] with [C].")
-		if(density)
-			autoclose = TRUE
-			open()
-		else
-			close()
-
 /obj/machinery/door/firedoor/attack_hand(mob/user)
 	if(operating || !density)
 		return
-
-	add_fingerprint(user)
 
 	if(can_force && (!glass || user.a_intent != I_HELP))
 		user.visible_message("<span class='notice'>[user] begins forcing \the [src].</span>", \
@@ -117,6 +60,56 @@
 		user.visible_message("<span class='warning'>[user] bangs on \the [src].</span>",
 							 "<span class='warning'>You bang on \the [src].</span>")
 		playsound(get_turf(src), 'sound/effects/Glassknock.ogg', 10, 1)
+
+/obj/machinery/door/firedoor/attackby(obj/item/weapon/C, mob/user, params)
+	add_fingerprint(user)
+
+	if(operating)
+		return
+
+	if(welded)
+		if(iswrench(C))
+			if(boltslocked)
+				to_chat(user, "<span class='notice'>There are screws locking the bolts in place!</span>")
+				return
+			playsound(get_turf(src), 'sound/items/Ratchet.ogg', 50, 1)
+			user.visible_message("<span class='notice'>[user] starts undoing [src]'s bolts...</span>", \
+								 "<span class='notice'>You start unfastening [src]'s floor bolts...</span>")
+			if(!do_after(user, 50, target = src))
+				return
+			playsound(get_turf(src), 'sound/items/Deconstruct.ogg', 50, 1)
+			user.visible_message("<span class='notice'>[user] unfastens [src]'s bolts.</span>", \
+								 "<span class='notice'>You undo [src]'s floor bolts.</span>")
+			deconstruct(TRUE)
+			return
+		if(isscrewdriver(C))
+			user.visible_message("<span class='notice'>[user] [boltslocked ? "unlocks" : "locks"] [src]'s bolts...</span>", \
+								 "<span class='notice'>You [boltslocked ? "unlock" : "lock"] [src]'s floor bolts...</span>")
+			playsound(get_turf(src), 'sound/items/Screwdriver.ogg', 50, 1)
+			boltslocked = !boltslocked
+			return
+		else
+			to_chat(user, "<span class='warning'>\The [src] is welded solid!</span>")
+			return
+	return ..()
+
+/obj/machinery/door/firedoor/try_to_activate_door(mob/user)
+	return
+
+/obj/machinery/door/firedoor/try_to_weld(obj/item/weapon/weldingtool/W, mob/user)
+	if(W.remove_fuel(0, user))
+		welded = !welded
+		to_chat(user, "<span class='danger'>You [welded?"welded":"unwelded"] \the [src]</span>")
+		update_icon()
+
+/obj/machinery/door/firedoor/try_to_crowbar(obj/item/I, mob/user)
+	if(welded || operating)
+		return
+	if(density)
+		autoclose = TRUE
+		open()
+	else
+		close()
 
 /obj/machinery/door/firedoor/attack_ai(mob/user)
 	forcetoggle()
@@ -170,6 +163,16 @@
 		crush()
 	latetoggle()
 
+/obj/machinery/door/firedoor/proc/deconstruct(disassembled = TRUE)
+	if(can_deconstruct)
+		var/obj/structure/firelock_frame/F = new assemblytype(get_turf(src))
+		if(disassembled)
+			F.constructionStep = CONSTRUCTION_PANEL_OPEN
+		else
+			F.constructionStep = CONSTRUCTION_WIRES_EXPOSED
+		F.update_icon()
+	qdel(src)
+
 /obj/machinery/door/firedoor/autoclose()
 	if(active_alarm)
 		. = ..()
@@ -192,16 +195,6 @@
 		open()
 	else
 		close()
-
-/obj/machinery/door/firedoor/proc/deconstruct(disassembled = TRUE)
-	if(can_deconstruct)
-		var/obj/structure/firelock_frame/F = new assembly_type(get_turf(src))
-		if(disassembled)
-			F.constructionStep = CONSTRUCTION_PANEL_OPEN
-		else
-			F.constructionStep = CONSTRUCTION_WIRES_EXPOSED
-		F.update_icon()
-	qdel(src)
 
 /obj/machinery/door/firedoor/border_only
 	icon = 'icons/obj/doors/edge_Doorfire.dmi'
@@ -234,8 +227,8 @@
 	name = "heavy firelock"
 	icon = 'icons/obj/doors/Doorfire.dmi'
 	glass = FALSE
-	opacity = 1
-	assembly_type = /obj/structure/firelock_frame/heavy
+	explosion_block = 2
+	assemblytype = /obj/structure/firelock_frame/heavy
 	can_force = FALSE
 
 /obj/machinery/door/firedoor/heavy/ex_act(severity)

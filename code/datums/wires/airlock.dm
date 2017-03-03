@@ -27,15 +27,15 @@ var/const/AIRLOCK_WIRE_LIGHT = 2048
 		if(A.isElectrified())
 			if(A.shock(L, 100))
 				return 0
-	if(A.p_open)
+	if(A.panel_open)
 		return 1
 	return 0
 
 /datum/wires/airlock/GetInteractWindow()
 	var/obj/machinery/door/airlock/A = holder
-	var/haspower = A.arePowerSystemsOn()
+	var/haspower = A.hasPower()
 	. += ..()
-	. += text("<br>\n[]<br>\n[]<br>\n[]<br>\n[]<br>\n[]<br>\n[]<br>\n[]", 
+	. += text("<br>\n[]<br>\n[]<br>\n[]<br>\n[]<br>\n[]<br>\n[]<br>\n[]",
 	(A.locked ? "The door bolts have fallen!" : "The door bolts look up."),
 	((A.lights && haspower) ? "The door bolt lights are on." : "The door bolt lights are off!"),
 	((haspower) ? "The test light is on." : "The test light is off!"),
@@ -120,7 +120,7 @@ var/const/AIRLOCK_WIRE_LIGHT = 2048
 	switch(index)
 		if(AIRLOCK_WIRE_IDSCAN)
 			//Sending a pulse through flashes the red light on the door (if the door has power).
-			if(A.arePowerSystemsOn() && A.density)
+			if(A.hasPower() && A.density)
 				A.do_animate("deny")
 				if(A.emergency)
 					A.emergency = 0

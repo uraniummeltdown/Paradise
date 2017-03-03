@@ -163,7 +163,7 @@
 			to_chat(user, "<span class='notice'>The airlock's bolts prevent it from being forced.</span>")
 			return
 
-		if(A.arePowerSystemsOn())
+		if(A.hasPower())
 			user.visible_message("<span class='warning'>[user] jams [src] into the airlock and starts prying it open!</span>", "<span class='warning'>We start forcing the airlock open.</span>", \
 			"<span class='italics'>You hear a metal screeching sound.</span>")
 			playsound(A, 'sound/machines/airlock_alien_prying.ogg', 150, 1)
