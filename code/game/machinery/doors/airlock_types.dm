@@ -136,6 +136,7 @@
 	icon = 'icons/obj/doors/airlocks/station/diamond.dmi'
 	var/mineral = "diamond"
 	assemblytype = /obj/structure/door_assembly/door_assembly_diamond
+	explosion_block = 2
 
 /obj/machinery/door/airlock/uranium
 	name = "uranium airlock"
@@ -192,6 +193,7 @@
 	icon = 'icons/obj/doors/airlocks/station/bananium.dmi'
 	var/mineral = "bananium"
 	assemblytype = /obj/structure/door_assembly/door_assembly_clown
+	doorOpen = 'sound/items/bikehorn.ogg'
 
 /obj/machinery/door/airlock/mime
 	name = "tranquillite airlock"
@@ -236,6 +238,7 @@
 	icon = 'icons/obj/doors/airlocks/external/external.dmi'
 	overlays_file = 'icons/obj/doors/airlocks/external/overlays.dmi'
 	assemblytype = /obj/structure/door_assembly/door_assembly_ext
+	explosion_block = 1
 
 /obj/machinery/door/airlock/glass_external
 	name = "external airlock"
@@ -255,6 +258,7 @@
 	overlays_file = 'icons/obj/doors/airlocks/centcom/overlays.dmi'
 	opacity = 1
 	assemblytype = /obj/structure/door_assembly/door_assembly_centcom
+	explosion_block = 2
 
 //////////////////////////////////
 /*
@@ -315,6 +319,17 @@
 	overlays_file = 'icons/obj/doors/airlocks/shuttle/overlays.dmi'
 	assemblytype = /obj/structure/door_assembly/door_assembly_shuttle
 
+/obj/machinery/door/airlock/abductor
+	name = "alien airlock"
+	desc = "With humanity's current technological level, it could take years to hack this advanced airlock... or maybe we should give a screwdriver a try?"
+	icon = 'icons/obj/doors/airlocks/abductor/abductor_airlock.dmi'
+	overlays_file = 'icons/obj/doors/airlocks/abductor/overlays.dmi'
+	assemblytype = /obj/structure/door_assembly/door_assembly_abductor
+	opacity = 1
+	explosion_block = 3
+	hackProof = 1
+	aiControlDisabled = 1
+
 //////////////////////////////////
 /*
 	Cult Airlocks
@@ -348,6 +363,7 @@
 		var/atom/throwtarget
 		throwtarget = get_edge_target_turf(src, get_dir(src, get_step_away(M, src)))
 		M << pick(sound('sound/hallucinations/turn_around1.ogg',0,1,50), sound('sound/hallucinations/turn_around2.ogg',0,1,50))
+		flash_color(M, flash_color="#960000", flash_time=20)
 		M.Weaken(2)
 		M.throw_at(throwtarget, 5, 1,src)
 		return 0
@@ -392,9 +408,12 @@
 	icon = 'icons/obj/doors/airlocks/glass_large/glass_large.dmi'
 	overlays_file = 'icons/obj/doors/airlocks/glass_large/overlays.dmi'
 	opacity = 0
-	assemblytype = null //(double glass door) there's no door assembly sprites for this one.
+	assemblytype = null
 	glass = 1
 	bound_width = 64 // 2x1
+
+/obj/machinery/door/airlock/glass_large/narsie_act()
+	return
 
 /obj/machinery/door/airlock/alien
 	name = "alien airlock"

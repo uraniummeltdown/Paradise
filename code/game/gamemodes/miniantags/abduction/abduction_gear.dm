@@ -638,3 +638,33 @@ Congratulations! You are now trained for xenobiology research!"}
 	icon_closed = "abductor"
 	icon_opened = "abductoropen"
 	material_drop = /obj/item/stack/sheet/mineral/abductor
+
+/obj/structure/door_assembly/door_assembly_abductor
+	name = "alien airlock assembly"
+	icon = 'icons/obj/doors/airlocks/abductor/abductor_airlock.dmi'
+	overlays_file = 'icons/obj/doors/airlocks/abductor/overlays.dmi'
+	typetext = "abductor"
+	icontext = "abductor"
+	airlock_type = /obj/machinery/door/airlock/abductor
+	anchored = 1
+	state = 1
+
+/obj/structure/door_assembly/door_assembly_abductor/attackby(obj/item/W, mob/user, params)
+	if(iswelder(W) && !anchored )
+		var/obj/item/weapon/weldingtool/WT = W
+		if(WT.remove_fuel(0,user))
+			user.visible_message("<span class='warning'>[user] disassembles the airlock assembly.</span>", \
+								"You start to disassemble the airlock assembly...")
+			playsound(loc, 'sound/items/Welder2.ogg', 50, 1)
+			if(do_after(user, 40, target = src))
+				if(!WT.isOn())
+					return
+				to_chat(user, "<span class='notice'>You disassemble the airlock assembly.</span>")
+				new /obj/item/stack/sheet/mineral/abductor(get_turf(src), 4)
+				qdel(src)
+		else
+			return
+	else if(istype(W, /obj/item/stack/sheet))
+		return // no material modding
+	else
+		..()

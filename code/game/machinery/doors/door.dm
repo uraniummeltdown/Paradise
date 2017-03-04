@@ -143,6 +143,21 @@
 	if(user.can_advanced_admin_interact())
 		return attack_hand(user)
 
+obj/machinery/door/proc/attack_generic(mob/user, damage = 0, damage_type = BRUTE)
+	if(operating)
+		return
+	user.do_attack_animation(src)
+	user.changeNext_move(CLICK_CD_MELEE)
+	user.visible_message("<span class='danger'>[user] smashes against the [name]!</span>", \
+				"<span class='userdanger'>You smash against the [name]!</span>")
+	take_damage(damage, damage_type)
+
+/obj/machinery/door/attack_slime(mob/living/carbon/slime/S)
+	if(!S.is_adult)
+		attack_generic(S, 0)
+	else
+		attack_generic(S, 25)
+
 /obj/machinery/door/attack_hand(mob/user)
 	return try_to_activate_door(user)
 
@@ -194,6 +209,20 @@
 		return 1
 	else
 		return ..()
+
+obj/machinery/door/proc/take_damage(damage, damage_type = BRUTE, sound_effect = 1)
+	switch(damage_type)
+		if(BRUTE)
+			if(sound_effect)
+				if(glass)
+					playsound(loc, 'sound/effects/Glasshit.ogg', 90, 1)
+				else
+					playsound(loc, 'sound/weapons/smash.ogg', 50, 1)
+		if(BURN)
+			if(sound_effect)
+				playsound(loc, 'sound/items/Welder.ogg', 100, 1)
+		else
+			return
 
 /obj/machinery/door/emp_act(severity)
 	if(prob(20/severity) && (istype(src,/obj/machinery/door/airlock) || istype(src,/obj/machinery/door/window)) )

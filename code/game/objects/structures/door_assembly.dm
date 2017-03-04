@@ -12,6 +12,7 @@
 	var/obj/item/weapon/airlock_electronics/electronics = null
 	var/airlock_type = /obj/machinery/door/airlock //the type path of the airlock once completed
 	var/glass_type = /obj/machinery/door/airlock/glass
+	var/can_deconstruct = TRUE
 	var/created_name = null
 	var/heat_proof_finished = 0 //whether to heat-proof the finished airlock
 	var/material = null //icon state logic
@@ -404,18 +405,7 @@
 				if(!WT.isOn())
 					return
 				to_chat(user, "<span class='notice'>You disassemble the airlock assembly.</span>")
-				new /obj/item/stack/sheet/metal(get_turf(src), 4)
-				if(mineral)
-					if(mineral == "glass")
-						if(heat_proof_finished)
-							new /obj/item/stack/sheet/rglass(get_turf(src))
-						else
-							new /obj/item/stack/sheet/glass(get_turf(src))
-					else
-						var/M = text2path("/obj/item/stack/sheet/mineral/[mineral]")
-						new M(get_turf(src))
-						new M(get_turf(src))
-				qdel(src)
+				deconstruct(TRUE)
 		else
 			to_chat(user, "\blue You need more welding fuel.")
 			return
@@ -582,3 +572,24 @@
 	else
 		overlays += get_airlock_overlay("[material]_construction", overlays_file)
 	overlays += get_airlock_overlay("panel_c[state+1]", overlays_file)
+
+/obj/structure/door_assembly/proc/deconstruct(disassembled = TRUE)
+	if(can_deconstruct)
+		var/turf/T = get_turf(src)
+		var/metal_amt = 4
+		if(!disassembled)
+			metal_amt = rand(2,4)
+		new /obj/item/stack/sheet/metal(T, metal_amt)
+		if(mineral)
+			if (mineral == "glass")
+				if(disassembled)
+					if (heat_proof_finished)
+						new /obj/item/stack/sheet/rglass(T)
+					else
+						new /obj/item/stack/sheet/glass(T)
+				else
+					new /obj/item/weapon/shard(T)
+			else
+				var/obj/item/stack/sheet/mineral/mineral_path = text2path("/obj/item/stack/sheet/mineral/[mineral]")
+				new mineral_path(T, 2)
+	qdel(src)
