@@ -104,7 +104,7 @@
 	if(!requiresID())
 		user = null
 
-	if(density)
+	if(density && !emagged)
 		if(allowed(user) || emergency == 1)
 			open()
 			if(istype(user, /mob/living/simple_animal/bot))

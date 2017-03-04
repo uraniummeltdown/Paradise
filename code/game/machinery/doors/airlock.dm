@@ -551,7 +551,7 @@ About the new airlock wires panel:
 	if(!issilicon(user) && !isobserver(user))
 		return STATUS_CLOSE
 
-	if(operating < 0) //emagged
+	if(emagged)
 		to_chat(user, "<span class='warning'>Unable to interface: Internal error.</span>")
 		return STATUS_CLOSE
 	if(!canAIControl() && !isobserver(user))
@@ -709,7 +709,7 @@ About the new airlock wires panel:
 			beingcrowbarred = 1 //derp, Agouri
 		else
 			beingcrowbarred = 0
-		if(beingcrowbarred && (density && welded && !operating && p_open && !arePowerSystemsOn() && !locked))
+		if(beingcrowbarred && p_open && (density && welded && !operating && !arePowerSystemsOn() && !locked))
 			playsound(loc, 'sound/items/Crowbar.ogg', 100, 1)
 			user.visible_message("[user] removes the electronics from the airlock assembly.", "You start to remove electronics from the airlock assembly...")
 			if(do_after(user,40, target = src))
@@ -725,24 +725,20 @@ About the new airlock wires panel:
 				if(beingcrowbarred == 0) //being fireaxe'd
 					var/obj/item/weapon/twohanded/fireaxe/F = C
 					if(F.wielded)
-						spawn(0)
-							open(2)
+						spawn(0)	open(1)
 					else
 						to_chat(user, "\red You need to be wielding \the [C] to do that.")
 				else
-					spawn(0)
-						open(2)
+					spawn(0)	open(1)
 			else
 				if(beingcrowbarred == 0)
 					var/obj/item/weapon/twohanded/fireaxe/F = C
 					if(F.wielded)
-						spawn(0)
-							close(2)
+						spawn(0)	close(1)
 					else
 						to_chat(user, "\red You need to be wielding \the [C] to do that.")
 				else
-					spawn(0)
-						close(2)
+					spawn(0)	close(1)
 	else
 		..()
 	return
@@ -760,20 +756,17 @@ About the new airlock wires panel:
 	if(!forced)
 		if( !arePowerSystemsOn() || isWireCut(AIRLOCK_WIRE_OPEN_DOOR) )
 			return 0
-	if(forced < 2)
-		if(emagged)
-			return 0
-		use_power(360)
 		if(istype(src, /obj/machinery/door/airlock/glass))
 			playsound(loc, 'sound/machines/windowdoor.ogg', 100, 1)
 		if(istype(src, /obj/machinery/door/airlock/clown))
 			playsound(loc, 'sound/items/bikehorn.ogg', 30, 1)
 		else
-			playsound(loc, 'sound/machines/airlock.ogg', 30, 1)
-		if(closeOther != null && istype(closeOther, /obj/machinery/door/airlock/) && !closeOther.density)
-			closeOther.close()
+			playsound(loc, doorOpen, 30, 1)
 	else
 		playsound(loc, 'sound/machines/airlockforced.ogg', 30, 1)
+	use_power(360)	//360 W seems much more appropriate for an actuator moving an industrial door capable of crushing people
+	if(closeOther != null && istype(closeOther, /obj/machinery/door/airlock/) && !closeOther.density)
+		closeOther.close()
 	if(!density)
 		return 1
 	if(!ticker || !ticker.mode)
@@ -800,18 +793,6 @@ About the new airlock wires panel:
 		//Bolts are already covered by the check for locked, above
 		if( !arePowerSystemsOn() || isWireCut(AIRLOCK_WIRE_OPEN_DOOR) )
 			return
-	if(safe)
-		for(var/turf/turf in locs)
-			if(locate(/mob/living) in turf)
-			//	playsound(loc, 'sound/machines/buzz-two.ogg', 50, 0)	//THE BUZZING IT NEVER STOPS	-Pete
-				spawn (60)
-					autoclose()
-				return
-
-	if(forced < 2)
-		if(emagged)
-			return
-		use_power(360)
 		if(istype(src, /obj/machinery/door/airlock/glass))
 			playsound(src.loc, 'sound/machines/windowdoor.ogg', 30, 1)
 		if(istype(src, /obj/machinery/door/airlock/clown))
@@ -820,6 +801,15 @@ About the new airlock wires panel:
 			playsound(src.loc, 'sound/machines/airlock.ogg', 30, 1)
 	else
 		playsound(loc, 'sound/machines/airlockforced.ogg', 30 , 1)
+	if(safe)
+		for(var/turf/turf in locs)
+			if(locate(/mob/living) in turf)
+			//	playsound(loc, 'sound/machines/buzz-two.ogg', 50, 0)	//THE BUZZING IT NEVER STOPS	-Pete
+				spawn (60)
+					autoclose()
+				return
+
+	use_power(360)	//360 W seems much more appropriate for an actuator moving an industrial door capable of crushing people
 	var/obj/structure/window/killthis = (locate(/obj/structure/window) in get_turf(src))
 	if(killthis)
 		killthis.ex_act(2)//Smashin windows
@@ -997,10 +987,7 @@ About the new airlock wires panel:
 			update_icon(AIRLOCK_CLOSED, 1)
 		emagged = 1
 		desc = "<span class='warning'>Its access panel is smoking slightly.</span>"
-		lights = 0
-		locked = 1
-		loseMainPower()
-		loseBackupPower()
+		return 1
 
 /obj/machinery/door/airlock/proc/deconstruct(disassembled = TRUE, mob/user)
 	if(can_deconstruct)
@@ -1030,7 +1017,6 @@ About the new airlock wires panel:
 			ae = electronics
 			electronics = null
 			ae.loc = loc
-		if(operating == -1)
+		if(emagged)
 			ae.icon_state = "door_electronics_smoked"
-			operating = 0
-		qdel(src)
+	qdel(src)
