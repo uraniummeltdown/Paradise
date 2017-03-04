@@ -99,7 +99,7 @@
 /obj/machinery/door/window/open(var/forced=0)
 	if(operating == 1) //doors can still open when emag-disabled
 		return 0
-	if(!ticker)
+	if(!ticker || !ticker.mode)
 		return 0
 	if(!forced)
 		if(stat & NOPOWER)
@@ -192,7 +192,7 @@
 
 /obj/machinery/door/window/attack_ai(mob/user)
 	return attack_hand(user)
-	
+
 /obj/machinery/door/window/attack_ghost(mob/user)
 	if(user.can_advanced_admin_interact())
 		return attack_hand(user)
@@ -228,8 +228,8 @@
 	return attackby(user, user)
 
 /obj/machinery/door/window/emag_act(user as mob, weapon as obj)
-	if(density)
-		operating = -1
+	if(!operating && density && !emagged)
+		operating = 1
 		flick("[base_state]spark", src)
 		sleep(6)
 		desc += "<BR><span class='warning'>Its access panel is smoking slightly.</span>"

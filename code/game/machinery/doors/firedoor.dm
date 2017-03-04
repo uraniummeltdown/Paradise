@@ -23,7 +23,7 @@
 	var/can_force = TRUE
 	var/force_open_time = 300
 	var/can_crush = TRUE
-	var/assembly_type = /obj/structure/firelock_frame
+	assemblytype = /obj/structure/firelock_frame
 	var/nextstate = null
 	var/welded = FALSE
 	var/boltslocked = TRUE
@@ -195,7 +195,7 @@
 
 /obj/machinery/door/firedoor/proc/deconstruct(disassembled = TRUE)
 	if(can_deconstruct)
-		var/obj/structure/firelock_frame/F = new assembly_type(get_turf(src))
+		var/obj/structure/firelock_frame/F = new assemblytype(get_turf(src))
 		if(disassembled)
 			F.constructionStep = CONSTRUCTION_PANEL_OPEN
 		else
@@ -235,7 +235,7 @@
 	icon = 'icons/obj/doors/Doorfire.dmi'
 	glass = FALSE
 	opacity = 1
-	assembly_type = /obj/structure/firelock_frame/heavy
+	assemblytype = /obj/structure/firelock_frame/heavy
 	can_force = FALSE
 
 /obj/machinery/door/firedoor/heavy/ex_act(severity)

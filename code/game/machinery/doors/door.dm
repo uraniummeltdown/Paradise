@@ -3,7 +3,7 @@
 #define DOOR_CLOSED_LAYER 3.1	//Above most items if closed
 
 /obj/machinery/door
-	name = "Door"
+	name = "door"
 	desc = "It opens and closes."
 	icon = 'icons/obj/doors/Doorint.dmi'
 	icon_state = "door1"
@@ -25,6 +25,7 @@
 	var/auto_close_time_dangerous = 5
 	var/heat_proof = 0 // For glass airlocks/opacity firedoors
 	var/emergency = 0
+	var/assemblytype //the type of door frame to drop during deconstruction
 	var/air_properties_vary_with_direction = 0
 	var/block_air_zones = 1 //If set, air zones cannot merge across the door even when it is opened.
 
@@ -151,14 +152,6 @@
 	if(density)
 		do_animate("deny")
 
-/obj/machinery/door/emag_act(user as mob)
-	if(density)
-		flick("door_spark", src)
-		sleep(6)
-		open()
-		operating = -1
-		return 1
-
 /obj/machinery/door/blob_act()
 	if(prob(40))
 		qdel(src)
@@ -215,7 +208,7 @@
 		return 1
 	if(operating > 0)
 		return
-	if(!ticker)
+	if(!ticker || !ticker.mode)
 		return 0
 	if(!operating)		operating = 1
 
