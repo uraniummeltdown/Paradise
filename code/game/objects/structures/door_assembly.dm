@@ -94,7 +94,7 @@
 	base_name = "Maintenance Hatch"
 	airlock_type = "/maintenance_hatch"
 	glass = -1
-	
+
 /obj/structure/door_assembly/door_assembly_highsecurity // Borrowing this until WJohnston makes sprites for the assembly
 	base_icon_state = "highsec"
 	base_name = "High Security Airlock"
@@ -224,7 +224,7 @@
 			new/obj/item/stack/cable_coil(src.loc, 1)
 			src.state = 0
 
-	else if(istype(W, /obj/item/weapon/airlock_electronics) && state == 1 && W:icon_state != "door_electronics_smoked")
+	else if(istype(W, /obj/item/weapon/airlock_electronics) && state == 1 && !W.broken)
 		playsound(src.loc, 'sound/items/Screwdriver.ogg', 100, 1)
 		user.visible_message("[user] installs the electronics into the airlock assembly.", "You start to install electronics into the airlock assembly.")
 		user.drop_item()

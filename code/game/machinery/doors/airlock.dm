@@ -367,7 +367,7 @@ About the new airlock wires panel:
 					return
 			else /*if(src.justzap)*/
 				return
-		else if(user.hallucination > 50 && prob(10) && src.operating == 0)
+		else if(user.hallucination > 50 && prob(10) && !operating)
 			to_chat(user, "<span class='danger'>You feel a powerful shock course through your body!</span>")
 			user.adjustStaminaLoss(50)
 			user.AdjustStunned(5)
@@ -681,7 +681,7 @@ About the new airlock wires panel:
 	if(!issilicon(user) && !isobserver(user))
 		return STATUS_CLOSE
 
-	if(operating < 0) //emagged
+	if(emagged)
 		to_chat(user, "<span class='warning'>Unable to interface: Internal error.</span>")
 		return STATUS_CLOSE
 	if(!canAIControl() && !isobserver(user))
@@ -803,7 +803,7 @@ About the new airlock wires panel:
 		return
 
 	add_fingerprint(user)
-	if((istype(C, /obj/item/weapon/weldingtool) && !( operating ) && density))
+	if((istype(C, /obj/item/weapon/weldingtool) && !operating && density))
 		var/obj/item/weapon/weldingtool/W = C
 		if(W.remove_fuel(0,user))
 			if(frozen)
@@ -834,7 +834,7 @@ About the new airlock wires panel:
 			beingcrowbarred = 1 //derp, Agouri
 		else
 			beingcrowbarred = 0
-		if( beingcrowbarred && p_open && (operating == -1 || (density && welded && operating != 1 && !arePowerSystemsOn() && !locked)) )
+		if( beingcrowbarred && p_open && (emagged || (density && welded && !operating && !arePowerSystemsOn() && !locked)) )
 			playsound(loc, 'sound/items/Crowbar.ogg', 100, 1)
 			user.visible_message("[user] removes the electronics from the airlock assembly.", "You start to remove electronics from the airlock assembly.")
 			if(do_after(user,40, target = src))
@@ -865,9 +865,9 @@ About the new airlock wires panel:
 					ae = electronics
 					electronics = null
 					ae.loc = loc
-				if(operating == -1)
+				if(emagged)
 					ae.icon_state = "door_electronics_smoked"
-					operating = 0
+					ae.broken = 1
 
 				qdel(src)
 				return
@@ -1024,7 +1024,7 @@ About the new airlock wires panel:
 		return
 
 	add_fingerprint(user)
-	if((istype(C, /obj/item/weapon/weldingtool) && !( operating > 0 ) && density))
+	if((istype(C, /obj/item/weapon/weldingtool) && !operating && density))
 		var/obj/item/weapon/weldingtool/W = C
 		if(W.remove_fuel(0,user))
 			if(frozen)
@@ -1049,7 +1049,7 @@ About the new airlock wires panel:
 		return
 
 	add_fingerprint(user)
-	if((istype(C, /obj/item/weapon/weldingtool) && !( operating > 0 ) && density))
+	if((istype(C, /obj/item/weapon/weldingtool) && !operating && density))
 		var/obj/item/weapon/weldingtool/W = C
 		if(W.remove_fuel(0,user))
 			if(frozen)
@@ -1066,6 +1066,18 @@ About the new airlock wires panel:
 /obj/machinery/door/airlock/CanAStarPass(var/obj/item/weapon/card/id/ID)
 //Airlock is passable if it is open (!density), bot has access, and is not bolted shut)
 	return !density || (check_access(ID) && !locked && arePowerSystemsOn())
+
+/obj/machinery/door/airlock/emag_act(mob/user)
+	if(!operating && density && arePowerSystemsOn() && !emagged)
+		operating = 1
+		flick("door_spark", src)
+		sleep(6)
+		if(qdeleted(src))
+			return
+		operating = 0
+		open()
+		emagged = 1
+		desc = "<span class='warning'>Its access panel is smoking slightly.</span>"
 
 /obj/machinery/door/airlock/emp_act(var/severity)
 	if(prob(40/severity))

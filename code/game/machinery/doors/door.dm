@@ -3,7 +3,7 @@
 #define DOOR_CLOSED_LAYER 3.1	//Above most items if closed
 
 /obj/machinery/door
-	name = "Door"
+	name = "door"
 	desc = "It opens and closes."
 	icon = 'icons/obj/doors/Doorint.dmi'
 	icon_state = "door1"
@@ -151,13 +151,16 @@
 	if(density)
 		do_animate("deny")
 
-/obj/machinery/door/emag_act(user as mob)
+/obj/machinery/door/emag_act(mob/user)
 	if(density)
+		operating = 1
 		flick("door_spark", src)
 		sleep(6)
+		if(qdeleted(src))
+			return
+		operating = 0
 		open()
-		operating = -1
-		return 1
+		emagged = 1
 
 /obj/machinery/door/blob_act()
 	if(prob(40))
@@ -213,12 +216,11 @@
 /obj/machinery/door/proc/open()
 	if(!density)
 		return 1
-	if(operating > 0)
+	if(operating)
 		return
-	if(!ticker)
+	if(!ticker || !ticker.mode)
 		return 0
-	if(!operating)		operating = 1
-
+	operating = 1
 	do_animate("opening")
 	set_opacity(0)
 	sleep(5)

@@ -59,12 +59,12 @@
 	return
 
 /obj/machinery/door/poddoor/open()
-	if(src.operating == 1) //doors can still open when emag-disabled
+	if(operating) //doors can still open when emag-disabled
 		return
 	if(!ticker)
 		return 0
-	if(!src.operating) //in case of emag
-		src.operating = 1
+	if(!operating) //in case of emag
+		operating = 1
 	flick("pdoorc0", src)
 	src.icon_state = "pdoor0"
 	src.set_opacity(0)
@@ -74,17 +74,17 @@
 	air_update_turf(1)
 	update_freelook_sight()
 
-	if(operating == 1) //emag again
-		src.operating = 0
+	if(operating) //emag again
+		operating = 0
 	if(autoclose)
 		spawn(150)
 			autoclose()
 	return 1
 
 /obj/machinery/door/poddoor/close()
-	if(src.operating)
+	if(operating)
 		return
-	src.operating = 1
+	operating = 1
 	flick("pdoorc1", src)
 	src.icon_state = "pdoor1"
 	src.set_opacity(initial(opacity))
@@ -94,8 +94,7 @@
 	crush()
 	src.density = 1
 	sleep(5)
-
-	src.operating = 0
+	operating = 0
 	return
 
 /obj/machinery/door/poddoor/multi_tile // Whoever wrote the old code for multi-tile spesspod doors needs to burn in hell.
